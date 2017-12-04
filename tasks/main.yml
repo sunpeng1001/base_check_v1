@@ -1,0 +1,5 @@
+---
+- include: network_check.yml
+- include: system_base_check.yml
+- include: database_node_check.yml
+- include: cpu_check.yml

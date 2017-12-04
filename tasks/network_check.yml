@@ -1,0 +1,126 @@
+---
+#Copy the python scripts dir
+- name: Compress python directory
+  archive: path={{ base_execute_path }}/roles/base_check/files/base_check dest={{ base_execute_path }}/roles/base_check/files/base_check.gz
+  connection: local
+  tags:
+    - network_base_check
+    - bond_check
+    - connection_check
+    - mac_check
+    - speed_check
+    - all
+
+- name: Unpacks Compressed python directory
+  unarchive: src=base_check.gz dest=/tmp
+  tags:
+    - network_base_check
+    - bond_check
+    - connection_check
+    - mac_check
+    - speed_check
+    - all
+
+- name: Delete Compressed python directory
+  file: path={{ base_execute_path }}/roles/base_check/files/base_check.gz  state=absent
+  connection: local
+  tags:
+    - network_base_check
+    - bond_check
+    - connection_check
+    - mac_check
+    - speed_check
+    - all
+
+- name: Copy the template file
+  template: src=base_conf.py dest=/tmp/base_check/conf/base_conf.py
+  tags:
+    - network_base_check
+    - bond_check
+    - connection_check
+    - mac_check
+    - speed_check
+    - all
+
+#Register the result of network base check
+- name: Register the result of network base check
+  shell: "python /tmp/base_check/main/network_base_examine_hint.py|tr '\n' ' '"
+  register: network_base_check
+  tags:
+    - network_base_check
+    - all
+    
+- name: Register the result of network_bond check
+  shell: "python /tmp/base_check/main/network_bond_examine_hint.py|tr '\n' ' '"
+  register: network_bond_check
+  tags:
+    - bond_check
+    - all
+
+- name: Register the result of network connection
+  shell: "python /tmp/base_check/main/network_connection_examine_hint.py|tr '\n' ' '"
+  register: network_connection_check
+  tags:
+    - connection_check
+    - all
+
+- name: Register the result of network device mac
+  shell: "python /tmp/base_check/main/network_device_mac_examine_hint.py|tr '\n' ' '"
+  register: network_mac_check
+  tags:
+    - mac_check
+    - all
+
+- name: Register the result of network device test speed
+  shell: "python /tmp/base_check/main/network_speed_test_examine_hint.py|tr '\n' ' '"
+  register: network_speed_check
+  tags:
+    - speed_check
+    - all
+
+#Show the result of check
+- name: show the network device check result
+  debug:
+    msg: "Node {{ inventory_hostname }}'s result: {{ network_base_check.stdout }}"
+  tags:
+    - network_base_check
+    - all
+
+- name: Show the bond check result
+  debug:
+    msg: "Node {{ inventory_hostname }}'s Bond result: {{ network_bond_check.stdout }}"
+  tags:
+    - bond_check
+    - all
+
+- name: Show the network connection check result
+  debug:
+    msg: "Node {{ inventory_hostname }}'s network connection result: {{ network_connection_check.stdout }}"
+  tags:
+    - connection_check
+    - all  
+
+- name: Show the network device mac check result
+  debug:
+    msg: "Node {{ inventory_hostname }}'s network device mac result: {{ network_mac_check.stdout }}"
+  tags:
+    - mac_check
+    - all
+
+- name: Show the network device test speed check result
+  debug:
+    msg: "Node {{ inventory_hostname }}'s network device test speed result: {{ network_speed_check.stdout }}"
+  tags:
+    - speed_check
+    - all
+
+#Delete the python scripts dir
+- name: Delete the python scripts
+  file: path=/tmp/base_check  state=absent
+  tags: 
+    - network_base_check
+    - bond_check
+    - connection_check
+    - mac_check
+    - speed_check
+    - all

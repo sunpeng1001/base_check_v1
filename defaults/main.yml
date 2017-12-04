@@ -1,0 +1,44 @@
+---
+#Ansible variables
+base_execute_path: '/etc/ansible'
+
+#Network Base Check variables
+#target_net_cite: '192.168.100'     #example: '172.18.211'
+target_net_cite: '192.168.200'     #example: '172.18.211'
+target_net: '{{ target_net_cite }}.*'
+#target_net_device: 'ens1'
+#target_net_device: 'bond0.2000'
+target_net_device: 'bond0'
+target_net_device_state: 'up'
+target_net_device_mtu: '9000'
+target_net_device_speed: '20000'
+target_net_getway: '{{ target_net_cite }}.254'
+
+#Database Check variables
+defaultlimitnofile_num: '1024000'
+defaultlimitnproc_num: '1024000'
+database_dir: 'sda'
+database_dir_capacity: '300G'
+
+#Network connection Check variables
+target_devices: 
+  - {name: 'ens1',gateway: '172.18.211.10'}
+  - {name: 'bond0.2000',gateway: '192.168.100.10'}
+  - {name: 'bond1.2001',gateway: '192.168.200.10'}
+ping_test_duration: '101'
+ping_test_timeout: '120'
+
+#Network device mac Check variables
+mac_check_data_file: '/tmp/base_check/data_file/server_mac_info_shuguang.csv'
+
+#network device press test var
+test_cluster_manger_network: '192.168.30'
+test_cluster_host: ['59','60','61','62','63','64']
+check_time: '30'
+
+#CPU Check variables
+cpu_check_data_file: '/tmp/base_check/data_file/node_cpuinfo.csv'
+cpu_vendor_conf: 'Intel'
+cpu_socket_num_conf: '1'
+cpu_cores_per_socket_conf: '1'
+cpu_threads_per_core_conf: '1'

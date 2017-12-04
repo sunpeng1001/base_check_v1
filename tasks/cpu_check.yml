@@ -1,0 +1,43 @@
+---
+#Copy the python scripts dir
+- name: Compress python directory
+  archive: path={{ base_execute_path }}/roles/base_check/files/base_check dest={{ base_execute_path }}/roles/base_check/files/base_check.gz
+  connection: local
+  tags:
+    - cpu_base_check
+
+- name: Unpacks Compressed python directory
+  unarchive: src=base_check.gz dest=/tmp
+  tags:
+    - cpu_base_check
+
+- name: Delete Compressed python directory
+  file: path={{ base_execute_path }}/roles/base_check/files/base_check.gz  state=absent
+  connection: local
+  tags:
+    - cpu_base_check
+
+- name: Copy the template file
+  template: src=base_conf.py dest=/tmp/base_check/conf/base_conf.py
+  tags:
+    - cpu_base_check
+
+#Register the result of CPU base check
+- name: Register the result of network base check
+  shell: "python /tmp/base_check/main/cpu_base_examine_hint.py|tr '\n' ' '"
+  register: cpu_base_check
+  tags:
+    - cpu_base_check
+
+#Show the result of check
+- name: show the network device check result
+  debug:
+    msg: "Node {{ inventory_hostname }}'s CPU Check result: {{ cpu_base_check.stdout }}"
+  tags:
+    - cpu_base_check
+
+#Delete the python scripts dir
+- name: Delete the python scripts
+  file: path=/tmp/base_check  state=absent
+  tags:
+    - cpu_base_check

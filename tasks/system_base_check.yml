@@ -1,0 +1,40 @@
+---
+#Create the python scripts dir
+- name: Compress python directory
+  archive: path={{ base_execute_path }}/roles/base_check/files/base_check dest={{ base_execute_path }}/roles/base_check/files/base_check.gz
+  connection: local
+  tags: system_check
+
+- name: Unpacks Compressed python directory
+  unarchive: src=base_check.gz dest=/tmp
+  tags: system_check
+
+- name: Delete Compressed python directory
+  file: path={{ base_execute_path }}/roles/base_check/files/base_check.gz  state=absent
+  connection: local
+  tags: system_check
+
+- name: Copy the template file
+  template: src=base_conf.py dest=/tmp/base_check/conf/base_conf.py
+  tags: system_check
+
+
+#Register the result of check
+- name: Register the result of system check
+  shell: "python /tmp/base_check/main/system_examine_hint.py|tr '\n' ' '"
+  register: system_check
+  tags:
+    - system_check
+
+#Show the result of check
+- name: Show the system check result
+  debug:
+    msg: "Node {{ inventory_hostname }}'s result: {{ system_check.stdout }}"
+  tags:
+     - system_check
+
+#Delete the python scripts dir
+- name: Delete the python scripts
+  file: path=/tmp/base_check  state=absent
+  tags:
+    - system_check
